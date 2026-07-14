@@ -5,7 +5,6 @@ Production-ready AI SaaS built with Next.js, FastAPI, Gemini, Groq, semantic mem
 
 ![Tech Stack](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?style=flat-square&logo=fastapi)
-![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
 ![Gemini](https://img.shields.io/badge/AI-Gemini-blue?style=flat-square&logo=google)
 ![Groq](https://img.shields.io/badge/Groq-LLM-orange?style=flat-square)
@@ -167,8 +166,6 @@ See [backend/.env.example](backend/.env.example) for all environment variables.
 
 Without API keys, the app runs in **offline heuristic mode** (functional but less intelligent).
 
-Full documentation: [PROJECT_AUDIT_AND_DEPLOYMENT_GUIDE.md](PROJECT_AUDIT_AND_DEPLOYMENT_GUIDE.md)
-
 ---
 
 ## Tech Stack
@@ -180,6 +177,7 @@ Full documentation: [PROJECT_AUDIT_AND_DEPLOYMENT_GUIDE.md](PROJECT_AUDIT_AND_DE
 **AI:** Google Gemini · Groq · OpenRouter · Local heuristic fallback
 
 **Database:** SQLite (development) · designed for future PostgreSQL/Supabase migration.
+
 ---
 
 ## Project Structure
