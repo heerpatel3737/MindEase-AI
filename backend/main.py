@@ -210,6 +210,11 @@ def startup_diagnostics():
     print("=========================================", flush=True)
 
 
+@app.get("/ping", tags=["Health"])
+def ping():
+    """Health check endpoint to keep Render instance active."""
+    return {"status": "ok"}
+
 
 # ==========================================
 #              AUTH ENDPOINTS
@@ -1452,8 +1457,14 @@ def json_to_text_summary(data: dict) -> str:
     """Serializes a JSON analysis map into a friendly readable string for database archiving."""
     return f"Tone: {data.get('emotional_tone')} | Intent: {data.get('hidden_intent')} | Reassurance: {data.get('reassurance')}"
 
-
 if __name__ == "__main__":
+    import os
     import uvicorn
-    # Start the local development server
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=False
+    )
