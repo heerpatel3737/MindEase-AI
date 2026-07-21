@@ -1,0 +1,16 @@
+name: Keep Alive Backend
+
+on:
+  schedule:
+    # Runs every 10 minutes to prevent Render free tier backend from sleeping
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    name: Ping Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Ping Request
+        run: |
+          curl -s https://mindease-ai-yezs.onrender.com/ping
