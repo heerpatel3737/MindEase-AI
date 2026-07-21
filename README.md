@@ -13,6 +13,7 @@ Production-ready AI SaaS built with Next.js, FastAPI, Gemini, Groq, semantic mem
 ## Why MindEase AI?
 
 MindEase AI is designed to tackle everyday cognitive overload by combining emotional intelligence with practical decision support. Rather than acting as a generic chatbot, it adapts its responses based on the selected Focus Mode, previous interactions, and user context to deliver personalized, actionable guidance across multiple mental wellness scenarios.
+
 ---
 
 ## Features
@@ -215,6 +216,7 @@ mindease-ai/
 **Heer Patel**
 
 Computer Science Undergraduate | Full Stack Developer | AI Enthusiast
+
 ---
 
 

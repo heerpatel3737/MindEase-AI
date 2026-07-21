@@ -268,7 +268,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   ],
   aiRuntime: null,
-  apiBaseUrl: "http://127.0.0.1:8000",
+  apiBaseUrl: "https://mindease-ai-yezs.onrender.com",
 
   // Simple State Mutators
   setToken: (token, user) => {
