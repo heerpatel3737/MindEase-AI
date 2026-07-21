@@ -124,7 +124,7 @@ const loadSessionData = (get: () => AppState) => {
     get().fetchJournals(),
     get().fetchDecisions(),
     get().fetchBurnoutHistory(),
-  ]).catch(() => {});
+  ]).catch(() => { });
 };
 
 const normalizePersona = (value?: string | null): Persona => {
@@ -160,22 +160,22 @@ interface AppState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  
+
   // UI & Active Tabs
   activeTab: "dashboard" | "translator" | "replies" | "decisions" | "journal" | "social" | "burnout";
   activePersonality: Persona;
-  
+
   // Cognitive Metrics
   mentalLoadScore: number;
   decisionPressureMeter: number;
-  
+
   // Content Caches
   journals: Journal[];
   decisions: Decision[];
   burnoutHistory: BurnoutLog[];
   optimizedSchedule: ScheduleItem[];
   personalityAdvice: string;
-  
+
   // AI Feature States
   translationResult: any | null;
   repliesResult: string[] | null;
@@ -186,15 +186,15 @@ interface AppState {
   isAILoading: boolean;
   isVoiceTranscribing: boolean;
   aiAbortController: AbortController | null;
-  
+
   // Soundscapes State
   isSoundPlaying: boolean;
   activeSoundTrack: "lofi" | "rain" | "ocean";
-  
+
   // Notifications
   notifications: AppNotification[];
   aiRuntime: AIRuntimeStatus | null;
-  
+
   // Config
   apiBaseUrl: string;
 
@@ -206,14 +206,14 @@ interface AppState {
   setSoundTrack: (track: AppState["activeSoundTrack"]) => void;
   addNotification: (message: string, type?: AppNotification["type"]) => void;
   clearNotification: (id: string) => void;
-  
+
   // API Fetch actions
   fetchDashboardData: () => Promise<void>;
   fetchAIRuntime: () => Promise<void>;
   fetchJournals: () => Promise<void>;
   fetchDecisions: () => Promise<void>;
   fetchBurnoutHistory: () => Promise<void>;
-  
+
   // Form submission wrappers
   register: (username: string, password: string) => Promise<boolean>;
   login: (username: string, password: string, remember?: boolean) => Promise<boolean>;
@@ -289,7 +289,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   toggleSound: () => set((state) => ({ isSoundPlaying: !state.isSoundPlaying })),
   setSoundTrack: (activeSoundTrack) => set({ activeSoundTrack }),
-  
+
   addNotification: (message, type = "info") => {
     const newNotif: AppNotification = {
       id: Math.random().toString(),
@@ -301,7 +301,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       notifications: [newNotif, ...state.notifications.slice(0, 4)] // Cap at 5 notifications
     }));
   },
-  
+
   clearNotification: (id) => set((state) => ({
     notifications: state.notifications.filter(n => n.id !== id)
   })),
@@ -358,7 +358,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         throw new Error(message);
       }
       const data = await response.json();
-      
+
       if (typeof window !== "undefined") {
         localStorage.setItem("mindease_token", data.access_token);
         localStorage.setItem("mindease_user", JSON.stringify(data.user));
@@ -370,11 +370,11 @@ export const useAppStore = create<AppState>((set, get) => ({
         activePersonality: normalizePersona(data.user.active_personality),
         isAuthenticated: true
       });
-      
+
       get().addNotification(`Access granted. Welcome back, ${data.user.username}!`, "success");
 
       loadSessionData(get);
-      void get().savePreferences().catch(() => {});
+      void get().savePreferences().catch(() => { });
       return true;
     } catch (e: any) {
       const errorMsg = e.message || "Network error. Please check your connection.";
@@ -438,11 +438,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   setPersonality: async (personality) => {
     const token = get().token;
     if (!token) return;
-    
+
     const oldPersonality = get().activePersonality;
     // Optimistic UI updates color scheme instantly
     set({ activePersonality: personality });
-    
+
     try {
       const response = await fetch(`${get().apiBaseUrl}/api/auth/personality`, {
         method: "PUT",
