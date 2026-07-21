@@ -25,24 +25,29 @@ const ViewFallback = () => (
 );
 
 export default function Home() {
-  const {
-    isAuthenticated,
-    activeTab,
-    activePersonality,
-    notifications,
-    clearNotification,
-  } = useAppStore();
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const activeTab = useAppStore((s) => s.activeTab);
+  const activePersonality = useAppStore((s) => s.activePersonality);
+  const notifications = useAppStore((s) => s.notifications);
+  const clearNotification = useAppStore((s) => s.clearNotification);
 
   const [authChecked, setAuthChecked] = React.useState(false);
 
   // Restore session once on mount — login/restoreSession already fires all data fetches
   React.useEffect(() => {
+    let cancelled = false;
     (async () => {
-      await (useAppStore.getState().restoreSession
-        ? useAppStore.getState().restoreSession()
-        : Promise.resolve(false));
-      setAuthChecked(true);
+      try {
+        await useAppStore.getState().restoreSession();
+      } catch (error) {
+        console.error("Session restore failed:", error);
+      } finally {
+        if (!cancelled) setAuthChecked(true);
+      }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Memoize theme class — only recomputes when activePersonality changes

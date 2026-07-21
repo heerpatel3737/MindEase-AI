@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useAppStore } from "../store/useAppStore";
 
 export default function AIOrb() {
-  const { activePersonality, isAILoading, mentalLoadScore } = useAppStore();
+  const activePersonality = useAppStore((s) => s.activePersonality);
+  const isAILoading = useAppStore((s) => s.isAILoading);
+  const mentalLoadScore = useAppStore((s) => s.mentalLoadScore);
   const [orbText, setOrbText] = useState("");
   const [tickerTick, setTickerTick] = useState(0);
 

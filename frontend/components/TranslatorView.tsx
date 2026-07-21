@@ -6,16 +6,14 @@ import { Mic, MicOff } from "lucide-react";
 import { createVoiceRecorder } from "../lib/voiceRecorder";
 
 export default function TranslatorView() {
-  const {
-    translateOverthinking,
-    translationResult,
-    translationStreamText,
-    isAILoading,
-    isVoiceTranscribing,
-    transcribeVoice,
-    cancelAIStream,
-    activePersonality,
-  } = useAppStore();
+  const translateOverthinking = useAppStore((s) => s.translateOverthinking);
+  const translationResult = useAppStore((s) => s.translationResult);
+  const translationStreamText = useAppStore((s) => s.translationStreamText);
+  const isAILoading = useAppStore((s) => s.isAILoading);
+  const isVoiceTranscribing = useAppStore((s) => s.isVoiceTranscribing);
+  const transcribeVoice = useAppStore((s) => s.transcribeVoice);
+  const cancelAIStream = useAppStore((s) => s.cancelAIStream);
+  const activePersonality = useAppStore((s) => s.activePersonality);
   const [message, setMessage] = useState("");
   const [context, setContext] = useState("");
   const [isRecording, setIsRecording] = useState(false);

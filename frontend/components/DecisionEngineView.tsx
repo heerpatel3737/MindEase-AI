@@ -1,30 +1,20 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { Clock } from "lucide-react";
 
 export default function DecisionEngineView() {
-  const { 
-    decisions, 
-    optimizedSchedule, 
-    mentalLoadScore,
-    submitDecision, 
-    updateDecisionStatus, 
-    runScheduleOptimizer,
-    fetchDecisions,
-    fetchDashboardData
-  } = useAppStore();
+  const decisions = useAppStore((s) => s.decisions);
+  const optimizedSchedule = useAppStore((s) => s.optimizedSchedule);
+  const submitDecision = useAppStore((s) => s.submitDecision);
+  const updateDecisionStatus = useAppStore((s) => s.updateDecisionStatus);
+  const runScheduleOptimizer = useAppStore((s) => s.runScheduleOptimizer);
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("work");
   const [priority, setPriority] = useState(2);
   const [difficulty, setDifficulty] = useState(2);
-
-  useEffect(() => {
-    fetchDecisions();
-    fetchDashboardData();
-  }, []);
 
   const handleAddDecision = async (e: React.FormEvent) => {
     e.preventDefault();

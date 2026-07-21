@@ -5,7 +5,8 @@ import { useAppStore } from "../store/useAppStore";
 import { LogIn, UserPlus, Eye, EyeOff } from "lucide-react";
 
 export default function LoginView() {
-  const { login, register } = useAppStore();
+  const login = useAppStore((s) => s.login);
+  const register = useAppStore((s) => s.register);
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,8 +26,8 @@ export default function LoginView() {
       const success = await login(username, password, remember);
       if (!success) {
         setInlineError("Login failed. Please check your username and password.");
-        setIsLoading(false);
       }
+      setIsLoading(false);
     } else {
       const success = await register(username, password);
       setIsLoading(false);

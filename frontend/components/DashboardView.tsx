@@ -2,20 +2,18 @@
 
 import React, { useMemo, useCallback } from "react";
 import { useAppStore } from "../store/useAppStore";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { CheckCircle } from "lucide-react";
 import AIOrb from "./AIOrb";
 
 const DashboardView = React.memo(function DashboardView() {
-  const {
-    user,
-    mentalLoadScore,
-    decisionPressureMeter,
-    optimizedSchedule,
-    personalityAdvice,
-    burnoutHistory,
-    updateDecisionStatus,
-  } = useAppStore();
+  const user = useAppStore((s) => s.user);
+  const mentalLoadScore = useAppStore((s) => s.mentalLoadScore);
+  const decisionPressureMeter = useAppStore((s) => s.decisionPressureMeter);
+  const optimizedSchedule = useAppStore((s) => s.optimizedSchedule);
+  const personalityAdvice = useAppStore((s) => s.personalityAdvice);
+  const burnoutHistory = useAppStore((s) => s.burnoutHistory);
+  const updateDecisionStatus = useAppStore((s) => s.updateDecisionStatus);
 
   // NOTE: fetchDashboardData and fetchBurnoutHistory are already called inside
   // login() and restoreSession() — no need to re-fetch here on mount.
@@ -220,8 +218,7 @@ const DashboardView = React.memo(function DashboardView() {
                 </p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
+              <LineChart width={320} height={176} data={chartData}>
                   <XAxis
                     dataKey="time"
                     stroke="#575653"
@@ -256,7 +253,6 @@ const DashboardView = React.memo(function DashboardView() {
                     activeDot={{ r: 4, stroke: "rgba(255, 51, 0, 0.2)", strokeWidth: 4 }}
                   />
                 </LineChart>
-              </ResponsiveContainer>
             )}
           </div>
 

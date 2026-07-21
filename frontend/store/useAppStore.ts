@@ -87,6 +87,46 @@ type Persona =
   | "Career Mentor"
   | "Adaptive Companion";
 
+const readStoredUser = (): User | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("mindease_user");
+    if (!raw) return null;
+    return JSON.parse(raw) as User;
+  } catch {
+    localStorage.removeItem("mindease_user");
+    return null;
+  }
+};
+
+const readStoredToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("mindease_token");
+};
+
+const inflightRequests = new Set<string>();
+let mentalLoadAlertShown = false;
+
+const runDeduped = async (key: string, task: () => Promise<void>) => {
+  if (inflightRequests.has(key)) return;
+  inflightRequests.add(key);
+  try {
+    await task();
+  } finally {
+    inflightRequests.delete(key);
+  }
+};
+
+const loadSessionData = (get: () => AppState) => {
+  void Promise.all([
+    get().fetchDashboardData(),
+    get().fetchAIRuntime(),
+    get().fetchJournals(),
+    get().fetchDecisions(),
+    get().fetchBurnoutHistory(),
+  ]).catch(() => {});
+};
+
 const normalizePersona = (value?: string | null): Persona => {
   const aliases: Record<string, Persona> = {
     "Smart Best Friend": "Best Friend",
@@ -194,12 +234,12 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Defaults
-  user: typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mindease_user") || "null") : null,
-  token: typeof window !== "undefined" ? localStorage.getItem("mindease_token") : null,
-  isAuthenticated: typeof window !== "undefined" ? !!localStorage.getItem("mindease_token") : false,
+  user: readStoredUser(),
+  token: readStoredToken(),
+  isAuthenticated: typeof window !== "undefined" ? !!readStoredToken() : false,
   activeTab: "dashboard",
-  activePersonality: (typeof window !== "undefined" && localStorage.getItem("mindease_user"))
-    ? normalizePersona(JSON.parse(localStorage.getItem("mindease_user") || "{}").active_personality)
+  activePersonality: readStoredUser()
+    ? normalizePersona(readStoredUser()?.active_personality)
     : "Calm Therapist",
   mentalLoadScore: 25,
   decisionPressureMeter: 20,
@@ -332,18 +372,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
       
       get().addNotification(`Access granted. Welcome back, ${data.user.username}!`, "success");
-      
-      // Auto-load user caches (fire and forget to avoid blocking)
-      Promise.all([
-        get().fetchDashboardData(),
-        get().fetchAIRuntime(),
-        get().fetchJournals(),
-        get().fetchDecisions(),
-        get().fetchBurnoutHistory(),
-        get().savePreferences()
-      ]).catch((err) => {
-        console.warn("Some dashboard data failed to load:", err);
-      });
+
+      loadSessionData(get);
+      void get().savePreferences().catch(() => {});
       return true;
     } catch (e: any) {
       const errorMsg = e.message || "Network error. Please check your connection.";
@@ -363,6 +394,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       localStorage.removeItem("mindease_token");
       localStorage.removeItem("mindease_user");
     }
+    mentalLoadAlertShown = false;
     set({
       user: null,
       token: null,
@@ -441,79 +473,89 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Session restore: tries /me then /refresh cookie endpoint with timeout
   restoreSession: async () => {
     const apiBase = get().apiBaseUrl;
-    const timeout = 5000; // 5 second timeout
-    
+    const timeout = 5000;
+
+    const clearStaleSession = () => {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("mindease_token");
+        localStorage.removeItem("mindease_user");
+      }
+      set({ user: null, token: null, isAuthenticated: false });
+    };
+
     try {
-      const token = get().token || (typeof window !== "undefined" ? localStorage.getItem("mindease_token") : null);
+      const token = get().token || readStoredToken();
       if (token) {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), timeout);
-          
+
           const resp = await fetch(`${apiBase}/api/auth/me`, {
-            headers: { "Authorization": `Bearer ${token}` },
-            signal: controller.signal
+            headers: { Authorization: `Bearer ${token}` },
+            signal: controller.signal,
           });
           clearTimeout(timeoutId);
-          
+
           if (resp.ok) {
             const user = await resp.json();
-            set({ user, isAuthenticated: true, activePersonality: normalizePersona(user.active_personality), token });
+            set({
+              user,
+              isAuthenticated: true,
+              activePersonality: normalizePersona(user.active_personality),
+              token,
+            });
             if (typeof window !== "undefined") {
               localStorage.setItem("mindease_user", JSON.stringify(user));
             }
-            // Load data in background without blocking
-            Promise.all([
-              get().fetchDashboardData(),
-              get().fetchAIRuntime(),
-              get().fetchJournals(),
-              get().fetchDecisions(),
-              get().fetchBurnoutHistory()
-            ]).catch(() => {});
+            loadSessionData(get);
             return true;
           }
-        } catch (e: any) {
-          if (e.name !== 'AbortError') {
+
+          if (resp.status === 401) {
+            clearStaleSession();
+          }
+        } catch (e: unknown) {
+          if (e instanceof Error && e.name !== "AbortError") {
             console.warn("Token validation failed, attempting refresh...");
           }
         }
       }
 
-      // Attempt refresh via cookie with timeout
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
+
         const refreshResp = await fetch(`${apiBase}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
-          signal: controller.signal
+          signal: controller.signal,
         });
         clearTimeout(timeoutId);
-        
+
         if (refreshResp.ok) {
           const data = await refreshResp.json();
           if (typeof window !== "undefined") {
             localStorage.setItem("mindease_token", data.access_token);
             localStorage.setItem("mindease_user", JSON.stringify(data.user));
           }
-          set({ token: data.access_token, user: data.user, isAuthenticated: true, activePersonality: normalizePersona(data.user.active_personality) });
-          // Load data in background
-          Promise.all([
-            get().fetchDashboardData(),
-            get().fetchAIRuntime(),
-            get().fetchJournals(),
-            get().fetchDecisions(),
-            get().fetchBurnoutHistory()
-          ]).catch(() => {});
+          set({
+            token: data.access_token,
+            user: data.user,
+            isAuthenticated: true,
+            activePersonality: normalizePersona(data.user.active_personality),
+          });
+          loadSessionData(get);
           return true;
         }
-      } catch (e: any) {
-        if (e.name !== 'AbortError') {
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name !== "AbortError") {
           console.warn("Cookie refresh failed");
         }
       }
 
+      if (get().isAuthenticated && !get().token) {
+        clearStaleSession();
+      }
       return false;
     } catch (e) {
       console.error("Session restore error:", e);
@@ -525,91 +567,104 @@ export const useAppStore = create<AppState>((set, get) => ({
   fetchAIRuntime: async () => {
     const token = get().token;
     if (!token) return;
-    try {
-      const response = await fetch(`${get().apiBaseUrl}/api/ai/status`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const aiRuntime = await response.json();
-        set({ aiRuntime });
+    await runDeduped("ai-runtime", async () => {
+      try {
+        const response = await fetch(`${get().apiBaseUrl}/api/ai/status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const aiRuntime = await response.json();
+          set({ aiRuntime });
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   },
 
   fetchDashboardData: async () => {
     const token = get().token;
     if (!token) return;
-    try {
-      const response = await fetch(`${get().apiBaseUrl}/api/decisions/optimize`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        set({
-          mentalLoadScore: data.mental_load_score,
-          decisionPressureMeter: data.decision_pressure_meter,
-          optimizedSchedule: data.ai_optimized_schedule,
-          personalityAdvice: data.personality_advice
+    await runDeduped("dashboard", async () => {
+      try {
+        const response = await fetch(`${get().apiBaseUrl}/api/decisions/optimize`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        
-        // Dynamic Notification trigger
-        if (data.mental_load_score > 70) {
-          get().addNotification("Your Mental Load Score is highly elevated. Want help simplifying your schedule?", "cognitive");
+        if (response.ok) {
+          const data = await response.json();
+          set({
+            mentalLoadScore: data.mental_load_score,
+            decisionPressureMeter: data.decision_pressure_meter,
+            optimizedSchedule: data.ai_optimized_schedule,
+            personalityAdvice: data.personality_advice,
+          });
+
+          if (data.mental_load_score > 70 && !mentalLoadAlertShown) {
+            mentalLoadAlertShown = true;
+            get().addNotification(
+              "Your Mental Load Score is highly elevated. Want help simplifying your schedule?",
+              "cognitive"
+            );
+          }
         }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   },
 
   fetchJournals: async () => {
     const token = get().token;
     if (!token) return;
-    try {
-      const response = await fetch(`${get().apiBaseUrl}/api/journal/list`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const journals = await response.json();
-        set({ journals });
+    await runDeduped("journals", async () => {
+      try {
+        const response = await fetch(`${get().apiBaseUrl}/api/journal/list`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const journals = await response.json();
+          set({ journals });
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   },
 
   fetchDecisions: async () => {
     const token = get().token;
     if (!token) return;
-    try {
-      const response = await fetch(`${get().apiBaseUrl}/api/decisions/list`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const decisions = await response.json();
-        set({ decisions });
+    await runDeduped("decisions", async () => {
+      try {
+        const response = await fetch(`${get().apiBaseUrl}/api/decisions/list`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const decisions = await response.json();
+          set({ decisions });
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   },
 
   fetchBurnoutHistory: async () => {
     const token = get().token;
     if (!token) return;
-    try {
-      const response = await fetch(`${get().apiBaseUrl}/api/burnout/history`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const history = await response.json();
-        set({ burnoutHistory: history });
+    await runDeduped("burnout", async () => {
+      try {
+        const response = await fetch(`${get().apiBaseUrl}/api/burnout/history`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const history = await response.json();
+          set({ burnoutHistory: history });
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   },
 
   // API Mutating Actions

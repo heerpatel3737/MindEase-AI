@@ -6,16 +6,13 @@ import { Calendar, Edit3, Save, Search, Trash2, X } from "lucide-react";
 import { createVoiceRecorder } from "../lib/voiceRecorder";
 
 export default function JournalView() {
-  const { 
-    journals, 
-    submitJournal, 
-    isAILoading, 
-    fetchJournals, 
-    apiBaseUrl, 
-    token,
-    transcribeVoice,
-    isVoiceTranscribing,
-  } = useAppStore();
+  const journals = useAppStore((s) => s.journals);
+  const submitJournal = useAppStore((s) => s.submitJournal);
+  const isAILoading = useAppStore((s) => s.isAILoading);
+  const apiBaseUrl = useAppStore((s) => s.apiBaseUrl);
+  const token = useAppStore((s) => s.token);
+  const transcribeVoice = useAppStore((s) => s.transcribeVoice);
+  const isVoiceTranscribing = useAppStore((s) => s.isVoiceTranscribing);
 
   const [entryText, setEntryText] = useState("");
   const [mood, setMood] = useState("Calm");
@@ -32,10 +29,13 @@ export default function JournalView() {
     total_entries: 0
   });
 
+  const insightsLoadedRef = useRef(false);
+
   useEffect(() => {
-    fetchJournals();
+    if (insightsLoadedRef.current) return;
+    insightsLoadedRef.current = true;
     fetchInsights();
-  }, []);
+  }, [token, apiBaseUrl]);
 
   const fetchInsights = async () => {
     if (!token) return;
@@ -101,14 +101,14 @@ export default function JournalView() {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ entry_text: editingText }),
     });
     if (response.ok) {
       setEditingId(null);
       setEditingText("");
-      await fetchJournals();
+      await useAppStore.getState().fetchJournals();
       await fetchInsights();
     }
   };
@@ -117,10 +117,10 @@ export default function JournalView() {
     if (!token || !confirm("Delete this journal entry permanently?")) return;
     const response = await fetch(`${apiBaseUrl}/api/journal/${id}`, {
       method: "DELETE",
-      headers: { "Authorization": `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (response.ok) {
-      await fetchJournals();
+      await useAppStore.getState().fetchJournals();
       await fetchInsights();
     }
   };

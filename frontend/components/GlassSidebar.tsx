@@ -36,18 +36,15 @@ const scrollbarStyles = `
 `;
 
 const GlassSidebar = React.memo(function GlassSidebar() {
-  const { 
-    user, 
-    activeTab, 
-    setActiveTab, 
-    logout, 
-    isSoundPlaying, 
-    toggleSound, 
-    activeSoundTrack, 
-    setSoundTrack,
-    aiRuntime,
-    fetchAIRuntime
-  } = useAppStore();
+  const user = useAppStore((s) => s.user);
+  const activeTab = useAppStore((s) => s.activeTab);
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
+  const logout = useAppStore((s) => s.logout);
+  const isSoundPlaying = useAppStore((s) => s.isSoundPlaying);
+  const toggleSound = useAppStore((s) => s.toggleSound);
+  const activeSoundTrack = useAppStore((s) => s.activeSoundTrack);
+  const setSoundTrack = useAppStore((s) => s.setSoundTrack);
+  const aiRuntime = useAppStore((s) => s.aiRuntime);
 
   const [synthVolume, setSynthVolume] = useState(0.2);
   
@@ -201,13 +198,6 @@ const GlassSidebar = React.memo(function GlassSidebar() {
       }
     }
   }, [synthVolume, isSoundPlaying]);
-
-  useEffect(() => {
-    // Only fetch if not already loaded to prevent triple-fire from login/restoreSession
-    if (!aiRuntime) {
-      fetchAIRuntime();
-    }
-  }, [aiRuntime, fetchAIRuntime]);
 
   const providerLabel = aiRuntime?.primary_provider || aiRuntime?.active_provider || "offline";
   const lastProvider = aiRuntime?.last_success_provider;

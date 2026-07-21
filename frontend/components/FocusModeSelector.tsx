@@ -88,7 +88,8 @@ const PERSONAS: Record<string, PersonaConfig> = {
 };
 
 export default function FocusModeSelector() {
-  const { activePersonality, setPersonality } = useAppStore();
+  const activePersonality = useAppStore((s) => s.activePersonality);
+  const setPersonality = useAppStore((s) => s.setPersonality);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handlePersonalityChange = (persona: string) => {

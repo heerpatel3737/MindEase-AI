@@ -7,7 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 export default function BurnoutView() {
-  const { submitBurnoutAssessment, burnoutHistory, isAILoading, activePersonality, fetchBurnoutHistory } = useAppStore();
+  const submitBurnoutAssessment = useAppStore((s) => s.submitBurnoutAssessment);
+  const burnoutHistory = useAppStore((s) => s.burnoutHistory);
+  const activePersonality = useAppStore((s) => s.activePersonality);
   
   // Assessment coordinates
   const [activeHours, setActiveHours] = useState(8);
@@ -24,10 +26,6 @@ export default function BurnoutView() {
   // Detox Timer State
   const [detoxActive, setDetoxActive] = useState(false);
   const [detoxSeconds, setDetoxSeconds] = useState(25 * 60);
-
-  useEffect(() => {
-    fetchBurnoutHistory();
-  }, []);
 
   // 4-7-8 breathing loop orchestrator
   useEffect(() => {
@@ -66,18 +64,24 @@ export default function BurnoutView() {
 
   // Detox Timer loop
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (detoxActive && detoxSeconds > 0) {
-      timer = setInterval(() => {
-        setDetoxSeconds((prev) => prev - 1);
-      }, 1000);
-    } else if (detoxSeconds === 0) {
-      setDetoxActive(false);
-      alert("Digital Detox complete. Welcome back, refreshed.");
-      setDetoxSeconds(25 * 60);
-    }
+    if (!detoxActive) return;
+
+    const timer = setInterval(() => {
+      setDetoxSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setDetoxActive(false);
+          window.setTimeout(() => {
+            alert("Digital Detox complete. Welcome back, refreshed.");
+          }, 0);
+          return 25 * 60;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     return () => clearInterval(timer);
-  }, [detoxActive, detoxSeconds]);
+  }, [detoxActive]);
 
   const handleAssessment = (e: React.FormEvent) => {
     e.preventDefault();
