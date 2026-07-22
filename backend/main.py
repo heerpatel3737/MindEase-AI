@@ -89,7 +89,14 @@ PERSONA_ALIASES = {
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 
 # Enable CORS for Next.js frontend running locally and on Vercel deployment domains (*.vercel.app).
-cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",") if o.strip()]
+raw_origins = os.getenv("CORS_ORIGINS", "").split(",")
+default_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "https://mindease-ai-yezs.vercel.app",
+]
+cors_origins = list(dict.fromkeys([o.strip() for o in raw_origins + default_origins if o.strip() and o.strip() != "*"]))
 
 app.add_middleware(
     CORSMiddleware,
