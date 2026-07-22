@@ -35,7 +35,12 @@ const scrollbarStyles = `
   }
 `;
 
-const GlassSidebar = React.memo(function GlassSidebar() {
+interface GlassSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const GlassSidebar = React.memo(function GlassSidebar({ isOpen = false, onClose }: GlassSidebarProps) {
   const user = useAppStore((s) => s.user);
   const activeTab = useAppStore((s) => s.activeTab);
   const setActiveTab = useAppStore((s) => s.setActiveTab);
@@ -220,13 +225,22 @@ const GlassSidebar = React.memo(function GlassSidebar() {
     { id: "burnout", label: "Burnout Monitor", icon: Zap },
   ] as const;
 
-
-
-
   return (
     <>
       <style>{scrollbarStyles}</style>
-      <div className="w-80 h-screen bg-[#0d0d0e] border-r border-[#1d1d1f] overflow-y-auto sidebar-container flex flex-col p-6 shrink-0 relative z-30 select-none"
+
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div 
+          onClick={onClose}
+          className="fixed inset-0 bg-black/75 z-40 md:hidden backdrop-blur-sm transition-opacity"
+        />
+      )}
+
+      <div 
+        className={`w-80 max-w-[85vw] md:max-w-none h-full md:h-screen bg-[#0d0d0e] border-r border-[#1d1d1f] overflow-y-auto sidebar-container flex flex-col p-6 shrink-0 fixed inset-y-0 left-0 z-50 md:static md:z-30 select-none transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
         style={{
           scrollbarWidth: 'thin',
           scrollbarColor: '#ff3300 #0d0d0e'
@@ -267,7 +281,10 @@ const GlassSidebar = React.memo(function GlassSidebar() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  if (onClose) onClose();
+                }}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-[10px] font-mono uppercase tracking-wider transition-colors border ${
                   isActive 
                     ? "border-[#ff3300] text-[#ff3300] bg-[#ff3300]/5"

@@ -35,7 +35,7 @@ export default function DecisionEngineView() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-[#1d1d1f] pb-8 gap-4">
         <div>
           <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#ff3300] block mb-2 font-bold">FATIGUE DECAY PARAMETERS</span>
-          <h2 className="text-4xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea]">DECISION FATIGUE ENGINE</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea]">DECISION FATIGUE ENGINE</h2>
           <p className="font-mono text-[9px] uppercase tracking-wider text-[#93928e] mt-3">
             OFFLOAD COGNITIVE PARALYSIS BY SEQUENCING DAILY TASKS BASED ON ENERGY COEFFICIENTS.
           </p>
@@ -44,17 +44,17 @@ export default function DecisionEngineView() {
         {decisions.filter(d => d.status === "Pending").length > 0 && (
           <button
             onClick={() => runScheduleOptimizer()}
-            className="px-4 py-2 bg-[#ff3300] hover:bg-[#f2efea] hover:text-[#070708] text-[#ffffff] border border-[#ff3300] font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2 bg-[#ff3300] hover:bg-[#f2efea] hover:text-[#070708] text-[#ffffff] border border-[#ff3300] font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer"
           >
             OPTIMIZE SEQUENCING
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
         
         {/* Log Dilemma Form */}
-        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-8 space-y-6">
+        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-5 sm:p-8 space-y-6">
           <div className="border-b border-[#1d1d1f] pb-4">
             <span className="font-mono text-[9px] uppercase tracking-widest text-[#93928e] block">REGISTER COGNITIVE BURDEN</span>
           </div>
@@ -75,7 +75,7 @@ export default function DecisionEngineView() {
             {/* Category Tag */}
             <div className="space-y-2">
               <label className="font-mono text-[9px] uppercase tracking-widest text-[#93928e] block">DILEMMA CATEGORY</label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(["work", "study", "food", "rest"] as const).map((cat) => (
                   <button
                     key={cat}

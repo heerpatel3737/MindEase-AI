@@ -59,7 +59,7 @@ export default function LoginView() {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex items-center justify-center bg-[#070708] overflow-hidden px-6">
+    <div className="min-h-screen w-full relative flex items-center justify-center bg-[#070708] overflow-hidden px-4 sm:px-6 py-8">
 
       {/* Editorial layout grid backdrop */}
       <div className="absolute inset-0 z-0 opacity-15 pointer-events-none">
@@ -78,7 +78,7 @@ export default function LoginView() {
       </div>
 
       {/* Main Login Frame */}
-      <div className="w-full max-w-md relative z-10 bg-[#0d0d0e] border border-[#1d1d1f] p-10 flex flex-col">
+      <div className="w-full max-w-md relative z-10 bg-[#0d0d0e] border border-[#1d1d1f] p-6 sm:p-10 flex flex-col">
 
         {/* Monospace System Header */}
         <div className="flex justify-between items-center mb-8 border-b border-[#1d1d1f] pb-4">
@@ -92,7 +92,7 @@ export default function LoginView() {
 
         {/* Typographic Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea] leading-none mb-2">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea] leading-none mb-2">
             {isLogin ? "RESTORE" : "INITIALIZE"}
             <span className="block text-[#ff3300]">COGNITIVE OS</span>
           </h1>

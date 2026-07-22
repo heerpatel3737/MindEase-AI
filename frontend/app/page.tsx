@@ -1,10 +1,10 @@
 "use client";
 
-import React, { Suspense, lazy, useMemo, useCallback } from "react";
+import React, { Suspense, lazy, useMemo, useCallback, useState } from "react";
 import { useAppStore } from "../store/useAppStore";
 import GlassSidebar from "../components/GlassSidebar";
 import LoginView from "../components/LoginView";
-import { Bell } from "lucide-react";
+import { Bell, Menu, X } from "lucide-react";
 
 // Lazy load all heavy view components — each splits into its own chunk
 const DashboardView = lazy(() => import("../components/DashboardView"));
@@ -31,7 +31,8 @@ export default function Home() {
   const notifications = useAppStore((s) => s.notifications);
   const clearNotification = useAppStore((s) => s.clearNotification);
 
-  const [authChecked, setAuthChecked] = React.useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Restore session once on mount — login/restoreSession already fires all data fetches
   React.useEffect(() => {
@@ -107,35 +108,42 @@ export default function Home() {
 
       {/* Editorial Grid Underlay */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none border-x border-[#1d1d1f] mx-auto max-w-[1600px] flex justify-between">
-        <div className="w-[1px] h-full bg-[#1d1d1f] ml-80" />
+        <div className="w-[1px] h-full bg-[#1d1d1f] ml-80 hidden md:block" />
         <div className="w-[1px] h-full bg-[#1d1d1f] hidden lg:block" />
         <div className="w-[1px] h-full bg-[#1d1d1f] hidden xl:block" />
       </div>
 
       {/* Navigation Left Sidebar */}
-      <GlassSidebar />
+      <GlassSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
       {/* Primary Right Workspaces Console */}
       <div className="flex-1 h-screen flex flex-col overflow-hidden relative z-10">
 
         {/* Editorial Top Header */}
-        <header className="w-full h-16 px-8 flex items-center justify-between border-b border-[#1d1d1f] bg-[#070708] shrink-0">
+        <header className="w-full h-14 md:h-16 px-4 md:px-8 flex items-center justify-between border-b border-[#1d1d1f] bg-[#070708] shrink-0 gap-2">
           <div className="flex items-center gap-3">
-            <span className="w-1.5 h-1.5 bg-[#ff3300]" />
-            <span className="font-mono text-[9px] uppercase tracking-widest text-[#93928e]">
+            <button
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              className="p-1.5 border border-[#2d2d30] text-[#f2efea] hover:border-[#ff3300] md:hidden shrink-0 flex items-center justify-center cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+            </button>
+            <span className="w-1.5 h-1.5 bg-[#ff3300] shrink-0" />
+            <span className="font-mono text-[8px] sm:text-[9px] uppercase tracking-widest text-[#93928e] truncate max-w-[150px] sm:max-w-none">
               Sanctuary Node Status: ACTIVE
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[9px] uppercase tracking-widest text-[#eae6df] bg-[#141416] border border-[#1d1d1f] px-3 py-1">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <span className="font-mono text-[8px] sm:text-[9px] uppercase tracking-widest text-[#eae6df] bg-[#141416] border border-[#1d1d1f] px-2 sm:px-3 py-1 truncate max-w-[140px] sm:max-w-none">
               FOCUS MODE // {activePersonality}
             </span>
           </div>
         </header>
 
         {/* Inner View frame container */}
-        <main className="flex-1 overflow-y-auto px-8 py-10 flex justify-center">
+        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-10 flex justify-center">
           <div className="w-full max-w-[1400px] animate-slide-reveal pb-16">
             <Suspense fallback={<ViewFallback />}>
               {activeView}
@@ -146,7 +154,7 @@ export default function Home() {
       </div>
 
       {/* Notification stack */}
-      <div className="fixed bottom-8 right-8 z-50 space-y-2 max-w-sm pointer-events-auto">
+      <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-8 sm:right-8 z-50 space-y-2 max-w-sm pointer-events-auto">
         {notifications.map((notif) => {
           const isWarning = notif.type === "warning" || notif.type === "cognitive";
           return (

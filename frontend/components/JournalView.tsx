@@ -139,16 +139,16 @@ export default function JournalView() {
       {/* Module Title Block */}
       <div className="border-b border-[#1d1d1f] pb-8">
         <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#ff3300] block mb-2 font-bold">COGNITIVE RECORDING LAB</span>
-        <h2 className="text-4xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea]">AI VENTING & JOURNAL SYSTEM</h2>
+        <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea]">AI VENTING & JOURNAL SYSTEM</h2>
         <p className="font-mono text-[9px] uppercase tracking-wider text-[#93928e] mt-3">
           LOG EMOTIONAL STREAM-OF-CONSCIOUSNESS TO HARVEST MOOD INSIGHTS AND AUTO-RESOLVE ANXIETY VECTORS.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
         
         {/* Journal Writing Desk */}
-        <div className="lg:col-span-2 border border-[#1d1d1f] bg-[#0d0d0e] p-8 space-y-6">
+        <div className="lg:col-span-2 border border-[#1d1d1f] bg-[#0d0d0e] p-5 sm:p-8 space-y-6">
           <div className="border-b border-[#1d1d1f] pb-4">
             <span className="font-mono text-[9px] uppercase tracking-widest text-[#93928e] block">JOURNAL ENTRIES RECORDER</span>
           </div>

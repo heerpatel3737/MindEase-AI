@@ -2,7 +2,7 @@
 
 import React, { useMemo, useCallback } from "react";
 import { useAppStore } from "../store/useAppStore";
-import { LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { CheckCircle } from "lucide-react";
 import AIOrb from "./AIOrb";
 
@@ -51,21 +51,21 @@ const DashboardView = React.memo(function DashboardView() {
   );
 
   return (
-    <div className="w-full space-y-12">
+    <div className="w-full space-y-8 md:space-y-12">
 
       {/* 1. Giant Asymmetrical Manifesto Header */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end border-b border-[#1d1d1f] pb-10">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-end border-b border-[#1d1d1f] pb-8 md:pb-10">
+        <div className="lg:col-span-2 space-y-3 sm:space-y-4">
           <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#ff3300] block">
             COGNITIVE MANIFESTO
           </span>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea] leading-[0.85]">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter uppercase font-sans text-[#f2efea] leading-[0.9]">
             YOUR BRAIN<br />
             SHOULD NOT FEEL<br />
             LIKE A TASK MANAGER.
           </h1>
         </div>
-        <div className="bg-[#0d0d0e] border border-[#1d1d1f] p-6 space-y-3">
+        <div className="bg-[#0d0d0e] border border-[#1d1d1f] p-5 sm:p-6 space-y-3">
           <span className="font-mono text-[9px] uppercase tracking-wider text-[#93928e] block">
             COMPANION DIRECTIVE
           </span>
@@ -80,10 +80,10 @@ const DashboardView = React.memo(function DashboardView() {
       </div>
 
       {/* 2. Stark Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
 
         {/* Metric 1: Mental Load */}
-        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-8 flex flex-col justify-between h-64">
+        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-6 sm:p-8 flex flex-col justify-between min-h-[14rem] md:h-64">
           <div className="space-y-1">
             <span className="font-mono text-[9px] uppercase tracking-wider text-[#93928e] block">
               MENTAL LOAD LAYER
@@ -92,8 +92,8 @@ const DashboardView = React.memo(function DashboardView() {
               {getLoadText(mentalLoadScore)}
             </span>
           </div>
-          <div className="my-4">
-            <span className="text-7xl font-extrabold tracking-tighter text-[#f2efea] font-sans leading-none">
+          <div className="my-3 sm:my-4">
+            <span className="text-5xl sm:text-7xl font-extrabold tracking-tighter text-[#f2efea] font-sans leading-none">
               {mentalLoadScore}
               <span className="text-lg font-mono text-[#575653] uppercase ml-1">%</span>
             </span>
@@ -110,7 +110,7 @@ const DashboardView = React.memo(function DashboardView() {
         </div>
 
         {/* Metric 2: Decision Pressure */}
-        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-8 flex flex-col justify-between h-64">
+        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-6 sm:p-8 flex flex-col justify-between min-h-[14rem] md:h-64">
           <div className="space-y-1">
             <span className="font-mono text-[9px] uppercase tracking-wider text-[#93928e] block">
               DECISION PRESSURE
@@ -119,8 +119,8 @@ const DashboardView = React.memo(function DashboardView() {
               {optimizedSchedule.length} PENDING NODES
             </span>
           </div>
-          <div className="my-4">
-            <span className="text-7xl font-extrabold tracking-tighter text-[#f2efea] font-sans leading-none">
+          <div className="my-3 sm:my-4">
+            <span className="text-5xl sm:text-7xl font-extrabold tracking-tighter text-[#f2efea] font-sans leading-none">
               {decisionPressureMeter}
               <span className="text-lg font-mono text-[#575653] uppercase ml-1">PSI</span>
             </span>
@@ -140,10 +140,10 @@ const DashboardView = React.memo(function DashboardView() {
       </div>
 
       {/* 3. Asymmetrical Data Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
         {/* Today's Sequence (Best Actions) */}
-        <div className="lg:col-span-2 border border-[#1d1d1f] bg-[#0d0d0e] p-8 space-y-6">
+        <div className="lg:col-span-2 border border-[#1d1d1f] bg-[#0d0d0e] p-5 sm:p-8 space-y-6">
           <div className="flex justify-between items-center border-b border-[#1d1d1f] pb-4">
             <h3 className="font-sans font-extrabold text-sm uppercase tracking-wider text-[#f2efea]">
               AI SEQUENCE PATH
@@ -167,7 +167,7 @@ const DashboardView = React.memo(function DashboardView() {
               {optimizedSchedule.map((item) => (
                 <div
                   key={item.decision_id}
-                  className="border border-[#1d1d1f] bg-[#070708] p-5 flex items-start justify-between gap-6 hover:border-[#ff3300]/40 transition-colors"
+                  className="border border-[#1d1d1f] bg-[#070708] p-4 sm:p-5 flex items-start justify-between gap-4 sm:gap-6 hover:border-[#ff3300]/40 transition-colors"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -200,7 +200,7 @@ const DashboardView = React.memo(function DashboardView() {
         </div>
 
         {/* Cognitive Health Line Chart */}
-        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-8 flex flex-col justify-between space-y-6">
+        <div className="border border-[#1d1d1f] bg-[#0d0d0e] p-5 sm:p-8 flex flex-col justify-between space-y-6">
           <div className="border-b border-[#1d1d1f] pb-4">
             <h3 className="font-sans font-extrabold text-sm uppercase tracking-wider text-[#f2efea]">
               FATIGUE CHRONO PLOT
@@ -218,7 +218,8 @@ const DashboardView = React.memo(function DashboardView() {
                 </p>
               </div>
             ) : (
-              <LineChart width={320} height={176} data={chartData}>
+              <ResponsiveContainer width="100%" height={176}>
+                <LineChart data={chartData}>
                   <XAxis
                     dataKey="time"
                     stroke="#575653"
@@ -253,6 +254,7 @@ const DashboardView = React.memo(function DashboardView() {
                     activeDot={{ r: 4, stroke: "rgba(255, 51, 0, 0.2)", strokeWidth: 4 }}
                   />
                 </LineChart>
+              </ResponsiveContainer>
             )}
           </div>
 
