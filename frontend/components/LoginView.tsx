@@ -25,19 +25,28 @@ export default function LoginView() {
     if (isLogin) {
       const success = await login(username, password, remember);
       if (!success) {
-        setInlineError("Login failed. Please check your username and password.");
+        setInlineError("Login failed. Please check your credentials or backend connection.");
       }
       setIsLoading(false);
     } else {
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSymbol = /[^A-Za-z0-9]/.test(password);
+
+      if (password.length < 8 || !hasUpper || !hasLower || !hasNumber || !hasSymbol) {
+        setInlineError("Password must be 8+ characters with uppercase, lowercase, number, and symbol.");
+        setIsLoading(false);
+        return;
+      }
+
       const success = await register(username, password);
       setIsLoading(false);
       if (success) {
         setIsLogin(true);
         setPassword("");
       } else {
-        setInlineError(
-          "Registration failed. Password must be 8+ characters with uppercase, lowercase, number, and symbol."
-        );
+        setInlineError("Registration failed. Please check if username is taken or retry.");
       }
     }
   };
